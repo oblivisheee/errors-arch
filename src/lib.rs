@@ -1,12 +1,11 @@
-use serde::{Serialize, ser::SerializeStruct as _};
-use serde_json::json;
-
+use serde::Serialize;
 /// Structure that represents an error
 #[derive(Debug)]
 pub struct ErrorInfo {
     pub r#type: String,
     pub message: String,
     pub details: String,
+    pub timestamp: String,
     pub status: u16,
 }
 
@@ -16,6 +15,7 @@ impl ErrorInfo {
             r#type: error_type.to_owned(),
             message: message.to_owned(),
             status,
+            timestamp: chrono::Utc::now().to_rfc3339(),
             details: details.to_owned(),
         }
     }
@@ -31,6 +31,7 @@ impl Serialize for ErrorInfo {
             r#type: &'a str,
             message: &'a str,
             details: &'a str,
+            timestamp: &'a str,
             status: u16,
         }
 
@@ -43,6 +44,7 @@ impl Serialize for ErrorInfo {
             r#type: &self.r#type,
             message: &self.message,
             details: &self.details,
+            timestamp: &self.timestamp,
             status: self.status,
         };
         let wrapper = Wrapper { error: inner };
@@ -58,6 +60,7 @@ impl std::fmt::Display for ErrorInfo {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
 
     #[test]
     fn test_error_info_new() {
